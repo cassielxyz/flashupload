@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 12%;
+    --primary: 217 89% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 24% 96%;
+    --secondary-foreground: 220 13% 24%;
+    --muted: 216 24% 96%;
+    --muted-foreground: 215 10% 44%;
+    --accent: 216 24% 96%;
+    --accent-foreground: 220 15% 15%;
+    --destructive: 4 78% 55%;
+    --border: 216 17% 88%;
+    --ring: 217 89% 61%;
+  }
+
+  .dark {
+    --background: 220 14% 6%;
+    --foreground: 210 18% 95%;
+    --card: 220 13% 8%;
+    --card-foreground: 210 18% 95%;
+    --popover: 220 13% 8%;
+    --popover-foreground: 210 18% 95%;
+    --primary: 217 91% 65%;
+    --primary-foreground: 220 15% 8%;
+    --secondary: 220 11% 14%;
+    --secondary-foreground: 210 18% 92%;
+    --muted: 220 11% 14%;
+    --muted-foreground: 215 10% 62%;
+    --accent: 220 11% 15%;
+    --accent-foreground: 210 18% 95%;
+    --destructive: 4 76% 62%;
+    --border: 220 10% 18%;
+    --ring: 217 91% 65%;
+  }
+
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground antialiased; min-width: 320px; }
+  ::selection { background: hsl(var(--primary) / .18); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+}
