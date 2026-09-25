@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FlashUpload logo</title>
+  <desc id="desc">A multicolor rounded-square upload and lightning mark.</desc>
+  <defs>
+    <clipPath id="clip"><rect x="24" y="24" width="464" height="464" rx="112"/></clipPath>
+    <linearGradient id="blue" x1="70" y1="45" x2="330" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#35c7f4"/><stop offset=".38" stop-color="#0f7df1"/><stop offset="1" stop-color="#1437e6"/></linearGradient>
+    <linearGradient id="green" x1="260" y1="40" x2="475" y2="275" gradientUnits="userSpaceOnUse"><stop stop-color="#54f58a"/><stop offset="1" stop-color="#00a95f"/></linearGradient>
+    <linearGradient id="yellow" x1="355" y1="170" x2="458" y2="424" gradientUnits="userSpaceOnUse"><stop stop-color="#ffe13c"/><stop offset="1" stop-color="#ff8615"/></linearGradient>
+    <linearGradient id="red" x1="70" y1="400" x2="370" y2="485" gradientUnits="userSpaceOnUse"><stop stop-color="#ff1641"/><stop offset="1" stop-color="#ff5a18"/></linearGradient>
+    <linearGradient id="cyan" x1="86" y1="85" x2="380" y2="175" gradientUnits="userSpaceOnUse"><stop stop-color="#2bbdf1" stop-opacity=".95"/><stop offset="1" stop-color="#1fc6da" stop-opacity=".25"/></linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#071a54" flood-opacity=".28"/></filter>
+    <filter id="glyphShadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#091735" flood-opacity=".32"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <g clip-path="url(#clip)">
+      <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#blue)"/>
+      <path d="M205 20C336 11 437 18 488 79V279C446 209 385 156 305 124C263 107 226 75 205 20Z" fill="url(#green)"/>
+      <path d="M492 185C474 278 408 347 302 379C370 428 434 443 492 421V185Z" fill="url(#yellow)"/>
+      <path d="M23 346C63 285 122 250 197 238C163 286 146 330 153 371C179 430 261 473 371 492H109C61 474 31 425 23 346Z" fill="url(#red)"/>
+      <path d="M21 118C117 58 209 40 297 66C226 77 156 101 87 139C59 154 37 147 21 118Z" fill="url(#cyan)" opacity=".88"/>
+      <path d="M154 370C200 412 285 446 410 466C345 493 256 500 172 481C123 470 91 447 75 413C117 418 145 404 154 370Z" fill="#ff3e19" opacity=".35"/>
+    </g>
+    <rect x="24.5" y="24.5" width="463" height="463" rx="111.5" fill="none" stroke="#fff" stroke-opacity=".28"/>
+  </g>
+  <path filter="url(#glyphShadow)" fill="#fff" d="M255 121c8 0 15 3 21 9l79 80c12 12 4 34-13 34h-48l-7 57h42c17 0 25 20 15 33l-99 118c-16 18-45 4-41-20l13-85h-49c-17 0-25-20-15-33l77-184c5-6 16-9 25-9Zm0 43-55 66h47c11 0 20 10 18 22l-9 61h42c7 0 12 3 16 8l-60 72 12-72c2-12-7-23-19-23h-46l54-134Z" fill-rule="evenodd" clip-rule="evenodd"/>
+</svg>
