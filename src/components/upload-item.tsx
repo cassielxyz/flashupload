@@ -14,7 +14,43 @@ export function UploadItem({ task, onPause, onResume, onCancel, onRetry }: { tas
     toast.success('Drive link copied')
   }
 
-  return <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-sm sm:p-5"><div className="flex items-start gap-3 sm:gap-4"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"><Icon className="h-5 w-5" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{task.file.name}</p><p className="mt-1 text-xs text-muted-foreground">{formatBytes(task.file.size)} · {statusText(task)}</p></div><div className="flex items-center gap-1">{task.status === 'uploading' && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onPause} aria-label="Pause"><Pause className="h-4 w-4" /></Button>}{task.status === 'paused' && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onResume} aria-label="Resume"><Play className="h-4 w-4" /></Button>}{task.status === 'error' && !task.result && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onRetry} aria-label="Retry"><RotateCcw className="h-4 w-4" /></Button>}{task.result?.webViewLink && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyLink} aria-label="Copy Drive link"><Copy className="h-4 w-4" /></Button>}{task.result?.webViewLink && <Button asChild variant="ghost" size="icon" className="h-8 w-8"><a href={task.result.webViewLink} target="_blank" rel="noreferrer" aria-label="Open in Drive"><ExternalLink className="h-4 w-4" /></a></Button>}{!['complete', 'canceled'].includes(task.status) && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={onCancel} aria-label="Cancel"><Trash2 className="h-4 w-4" /></Button>}</div></div><div className="mt-4"><Progress value={percent} /></div><div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><span>{Math.round(percent)}% · {formatBytes(task.uploadedBytes)} of {formatBytes(task.file.size)}</span><span>{task.status === 'uploading' ? `${formatSpeed(task.speedBytesPerSecond)} · ${formatDuration(task.etaSeconds)} left` : statusMeta(task)}</span></div>{task.error && <p className="mt-3 flex items-start gap-1.5 text-xs text-destructive"><XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />{task.error}</p>}</div></div></div>
+  return (
+    <div className="group overflow-hidden rounded-[1.35rem] border border-border/70 bg-card/72 transition-all duration-300 hover:border-primary/20 hover:shadow-[0_22px_60px_-48px_hsl(var(--foreground)/.45)]">
+      <div className="flex items-start gap-3 p-4 sm:gap-4 sm:p-5">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border bg-background text-muted-foreground shadow-sm"><Icon className="h-5 w-5" /></span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{task.file.name}</p>
+              <p className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+                <span>{formatBytes(task.file.size)}</span><span className="h-1 w-1 rounded-full bg-border" /><span>{statusText(task)}</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-1">
+              {task.status === 'uploading' && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onPause} aria-label="Pause"><Pause className="h-3.5 w-3.5" /></Button>}
+              {task.status === 'paused' && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onResume} aria-label="Resume"><Play className="h-3.5 w-3.5" /></Button>}
+              {task.status === 'error' && !task.result && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onRetry} aria-label="Retry"><RotateCcw className="h-3.5 w-3.5" /></Button>}
+              {task.result?.webViewLink && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyLink} aria-label="Copy Drive link"><Copy className="h-3.5 w-3.5" /></Button>}
+              {task.result?.webViewLink && <Button asChild variant="ghost" size="icon" className="h-8 w-8"><a href={task.result.webViewLink} target="_blank" rel="noreferrer" aria-label="Open in Drive"><ExternalLink className="h-3.5 w-3.5" /></a></Button>}
+              {!['complete', 'canceled'].includes(task.status) && <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={onCancel} aria-label="Cancel"><Trash2 className="h-3.5 w-3.5" /></Button>}
+            </div>
+          </div>
+
+          <div className="mt-4"><Progress value={percent} /></div>
+          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[10px] text-muted-foreground">
+            <span className="font-mono">{Math.round(percent)}% · {formatBytes(task.uploadedBytes)} / {formatBytes(task.file.size)}</span>
+            <span>{task.status === 'uploading' ? `${formatSpeed(task.speedBytesPerSecond)} · ${formatDuration(task.etaSeconds)} left` : statusMeta(task)}</span>
+          </div>
+          {task.error && <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-destructive/[0.06] px-2.5 py-2 text-[10px] leading-4 text-destructive"><XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />{task.error}</p>}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between border-t border-border/60 bg-secondary/30 px-4 py-2 font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground sm:px-5">
+        <span>drive resumable session</span>
+        <span>{task.status === 'uploading' ? 'streaming' : task.status}</span>
+      </div>
+    </div>
+  )
 }
 
 function statusText(task: UploadTask) {
