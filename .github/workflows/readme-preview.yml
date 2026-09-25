@@ -22,28 +22,49 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
 
-      - name: Capture live FlashUpload homepage
+      - name: Capture real production previews
         run: |
           mkdir -p docs/previews
-          npx --yes playwright@1.55.0 screenshot \
-            --browser chromium \
-            --viewport-size "1440,1000" \
-            --full-page \
-            --wait-for-timeout 4000 \
-            https://flashupload.cassielae.me/ \
-            docs/previews/landing.png
+          rm -f docs/previews/*.webp
+          cat > /tmp/capture-previews.mjs <<'EOF'
+          import { chromium } from 'playwright'
 
-      - name: Commit preview when changed
+          const browser = await chromium.launch({ headless: true })
+          const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
+
+          await page.goto('https://flashupload.cassielae.me/', { waitUntil: 'networkidle', timeout: 120000 })
+          await page.waitForTimeout(2500)
+
+          await page.screenshot({ path: 'docs/previews/landing.png', fullPage: true })
+
+          for (const [id, file] of [
+            ['system', 'system.png'],
+            ['protocol', 'protocol.png'],
+            ['privacy', 'privacy.png'],
+          ]) {
+            const section = page.locator(`#${id}`)
+            await section.scrollIntoViewIfNeeded()
+            await page.waitForTimeout(700)
+            await section.screenshot({ path: `docs/previews/${file}` })
+          }
+
+          await browser.close()
+          EOF
+          node /tmp/capture-previews.mjs
+
+      - name: Commit previews when changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/previews/landing.png
+          git add -A docs/previews
           if git diff --cached --quiet; then
-            echo "Preview is unchanged."
+            echo "Previews are unchanged."
           else
-            git commit -m "docs: refresh live README preview"
+            git commit -m "docs: refresh real production previews"
             git push
           fi
