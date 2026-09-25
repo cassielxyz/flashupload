@@ -12,24 +12,30 @@ export type UploadTask = {
   speedBytesPerSecond: number
   etaSeconds: number
   chunkSize: number
+  parentId?: string
   error?: string
   result?: DriveFile
 }
 
 type Runtime = { controller?: AbortController; sessionUrl?: string; uploadedBytes: number }
-type Options = { getAccessToken: () => Promise<string | null>; concurrency?: number; shareAfterUpload?: boolean }
+type Options = {
+  getAccessToken: () => Promise<string | null>
+  concurrency?: number
+  shareAfterUpload?: boolean
+  destinationFolderId?: string
+}
 
 function fingerprint(file: File) { return `${file.name}:${file.size}:${file.lastModified}` }
 
-export function useUploadManager({ getAccessToken, concurrency = 2, shareAfterUpload = false }: Options) {
+export function useUploadManager({ getAccessToken, concurrency = 2, shareAfterUpload = false, destinationFolderId }: Options) {
   const [tasks, setTasks] = useState<UploadTask[]>([])
   const runtimes = useRef(new Map<string, Runtime>())
   const running = useRef(new Set<string>())
   const paused = useRef(new Set<string>())
   const canceled = useRef(new Set<string>())
-  const settingsRef = useRef({ concurrency, shareAfterUpload })
+  const settingsRef = useRef({ concurrency, shareAfterUpload, destinationFolderId })
 
-  useEffect(() => { settingsRef.current = { concurrency, shareAfterUpload } }, [concurrency, shareAfterUpload])
+  useEffect(() => { settingsRef.current = { concurrency, shareAfterUpload, destinationFolderId } }, [concurrency, shareAfterUpload, destinationFolderId])
 
   const patchTask = useCallback((id: string, patch: Partial<UploadTask>) => {
     setTasks((current) => current.map((task) => (task.id === id ? { ...task, ...patch } : task)))
@@ -44,9 +50,10 @@ export function useUploadManager({ getAccessToken, concurrency = 2, shareAfterUp
         const additions = incoming.filter((file) => file.size > 0 && !existing.has(fingerprint(file))).map<UploadTask>((file) => {
           const previous = saved.find((session) => session.name === file.name && session.size === file.size && session.lastModified === file.lastModified && Date.now() - session.savedAt < 7 * 24 * 60 * 60 * 1000)
           const id = previous?.id ?? crypto.randomUUID()
+          const parentId = previous?.parentId ?? settingsRef.current.destinationFolderId
           runtimes.current.set(id, { uploadedBytes: previous?.uploadedBytes ?? 0, sessionUrl: previous?.sessionUrl })
           existing.add(fingerprint(file))
-          return { id, file, status: 'queued', uploadedBytes: previous?.uploadedBytes ?? 0, speedBytesPerSecond: 0, etaSeconds: Infinity, chunkSize: 8 * 1024 * 1024 }
+          return { id, file, status: 'queued', uploadedBytes: previous?.uploadedBytes ?? 0, speedBytesPerSecond: 0, etaSeconds: Infinity, chunkSize: 8 * 1024 * 1024, parentId }
         })
         return [...additions, ...current]
       })
@@ -75,15 +82,16 @@ export function useUploadManager({ getAccessToken, concurrency = 2, shareAfterUp
         signal: controller.signal,
         previousSessionUrl: runtime.sessionUrl,
         previousUploadedBytes: runtime.uploadedBytes,
+        parentId: task.parentId,
         onSession: (sessionUrl) => {
           runtime.sessionUrl = sessionUrl
-          void saveUploadSession({ id: task.id, name: task.file.name, size: task.file.size, type: task.file.type, lastModified: task.file.lastModified, sessionUrl, uploadedBytes: runtime.uploadedBytes, savedAt: Date.now() }).catch(() => undefined)
+          void saveUploadSession({ id: task.id, name: task.file.name, size: task.file.size, type: task.file.type, lastModified: task.file.lastModified, sessionUrl, uploadedBytes: runtime.uploadedBytes, savedAt: Date.now(), parentId: task.parentId }).catch(() => undefined)
         },
         onProgress: (progress) => {
           runtime.uploadedBytes = progress.uploadedBytes
           patchTask(task.id, { status: 'uploading', uploadedBytes: progress.uploadedBytes, speedBytesPerSecond: progress.speedBytesPerSecond, etaSeconds: progress.etaSeconds, chunkSize: progress.chunkSize })
           if (runtime.sessionUrl) {
-            void saveUploadSession({ id: task.id, name: task.file.name, size: task.file.size, type: task.file.type, lastModified: task.file.lastModified, sessionUrl: runtime.sessionUrl, uploadedBytes: progress.uploadedBytes, savedAt: Date.now() }).catch(() => undefined)
+            void saveUploadSession({ id: task.id, name: task.file.name, size: task.file.size, type: task.file.type, lastModified: task.file.lastModified, sessionUrl: runtime.sessionUrl, uploadedBytes: progress.uploadedBytes, savedAt: Date.now(), parentId: task.parentId }).catch(() => undefined)
           }
         },
       })
