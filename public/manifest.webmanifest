@@ -1,10 +1,24 @@
 {
-  "name": "FlashUpload",
+  "name": "FlashUpload — Google Drive Workspace",
   "short_name": "FlashUpload",
-  "description": "Resumable, direct-to-Google-Drive uploads.",
+  "description": "Fast, resumable large-file uploads and an app-owned Google Drive workspace.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
-  "icons": []
+  "icons": [
+    {
+      "src": "/brand/flashupload-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/flashupload-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
 }
