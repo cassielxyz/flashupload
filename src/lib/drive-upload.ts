@@ -76,7 +76,7 @@ export async function queryResumableStatus(sessionUrl: string, totalSize: number
   const response = await fetch(sessionUrl, {
     method: 'PUT',
     signal,
-    headers: { 'Content-Length': '0', 'Content-Range': `bytes */${totalSize}` },
+    headers: { 'Content-Range': `bytes */${totalSize}` },
   })
   if (response.status === 308) return parseRangeEnd(response.headers.get('Range')) + 1
   if (response.ok) return totalSize
@@ -91,7 +91,6 @@ async function uploadChunk(sessionUrl: string, file: File, start: number, chunkS
     method: 'PUT',
     signal,
     headers: {
-      'Content-Length': String(chunk.size),
       'Content-Range': `bytes ${start}-${endExclusive - 1}/${file.size}`,
     },
     body: chunk,
