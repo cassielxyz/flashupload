@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p docs/previews
           rm -f docs/previews/*.webp
-          cat > /tmp/capture-previews.mjs <<'EOF'
+          cat > capture-previews.mjs <<'EOF'
           import { chromium } from 'playwright'
 
           const browser = await chromium.launch({ headless: true })
@@ -55,7 +55,8 @@ jobs:
 
           await browser.close()
           EOF
-          node /tmp/capture-previews.mjs
+          node capture-previews.mjs
+          rm -f capture-previews.mjs
 
       - name: Commit previews when changed
         run: |
