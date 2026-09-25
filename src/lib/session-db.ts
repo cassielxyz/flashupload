@@ -1,4 +1,14 @@
-export type SavedUploadSession = { id: string; name: string; size: number; type: string; lastModified: number; sessionUrl: string; uploadedBytes: number; savedAt: number }
+export type SavedUploadSession = {
+  id: string
+  name: string
+  size: number
+  type: string
+  lastModified: number
+  sessionUrl: string
+  uploadedBytes: number
+  savedAt: number
+  parentId?: string
+}
 
 const DB_NAME = 'flashupload'
 const STORE_NAME = 'sessions'

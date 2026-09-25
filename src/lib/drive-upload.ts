@@ -1,3 +1,4 @@
+import { throwDriveApiError } from '@/lib/drive-api'
 import { sleep } from '@/lib/utils'
 
 export const CHUNK_GRANULARITY = 256 * 1024
@@ -25,6 +26,7 @@ export type UploadControls = {
   signal: AbortSignal
   previousSessionUrl?: string
   previousUploadedBytes?: number
+  parentId?: string
   onSession?: (sessionUrl: string) => void
   onProgress?: (progress: UploadProgress) => void
 }
@@ -51,7 +53,7 @@ export function isRetryableStatus(status: number) {
   return status === 408 || status === 429 || status >= 500
 }
 
-async function initiateResumableSession(file: File, accessToken: string, signal: AbortSignal) {
+async function initiateResumableSession(file: File, accessToken: string, signal: AbortSignal, parentId?: string) {
   const response = await fetch(
     'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,size,mimeType,webViewLink',
     {
@@ -63,16 +65,20 @@ async function initiateResumableSession(file: File, accessToken: string, signal:
         'X-Upload-Content-Type': file.type || 'application/octet-stream',
         'X-Upload-Content-Length': String(file.size),
       },
-      body: JSON.stringify({ name: file.name, mimeType: file.type || 'application/octet-stream' }),
+      body: JSON.stringify({
+        name: file.name,
+        mimeType: file.type || 'application/octet-stream',
+        ...(parentId ? { parents: [parentId] } : {}),
+      }),
     },
   )
-  if (!response.ok) throw new Error(`Could not start the Drive upload (${response.status}).`)
+  if (!response.ok) await throwDriveApiError(response, 'Could not start the Drive upload')
   const sessionUrl = response.headers.get('Location')
   if (!sessionUrl) throw new Error('Google Drive did not return a resumable upload session.')
   return sessionUrl
 }
 
-export async function queryResumableStatus(sessionUrl: string, totalSize: number, signal?: AbortSignal) {
+export async function queryResumableStatus(sessionUrl: string, totalSize: number, signal?: AbortSignal): Promise<number> {
   const response = await fetch(sessionUrl, {
     method: 'PUT',
     signal,
@@ -81,7 +87,7 @@ export async function queryResumableStatus(sessionUrl: string, totalSize: number
   if (response.status === 308) return parseRangeEnd(response.headers.get('Range')) + 1
   if (response.ok) return totalSize
   if (response.status === 404) throw new Error('This resumable session expired. Restart the file upload.')
-  throw new Error(`Could not resume the upload (${response.status}).`)
+  return await throwDriveApiError(response, 'Could not resume the Drive upload')
 }
 
 async function uploadChunk(sessionUrl: string, file: File, start: number, chunkSize: number, signal: AbortSignal) {
@@ -106,7 +112,7 @@ export async function uploadFileToDrive(file: File, controls: UploadControls): P
   let smoothSpeed = 0
 
   if (!sessionUrl) {
-    sessionUrl = await initiateResumableSession(file, accessToken, signal)
+    sessionUrl = await initiateResumableSession(file, accessToken, signal, controls.parentId)
     onSession?.(sessionUrl)
   } else {
     uploadedBytes = await queryResumableStatus(sessionUrl, file.size, signal)
@@ -145,7 +151,7 @@ export async function uploadFileToDrive(file: File, controls: UploadControls): P
           return result
         }
 
-        if (!isRetryableStatus(response.status)) throw new Error(`Google Drive rejected the upload (${response.status}).`)
+        if (!isRetryableStatus(response.status)) await throwDriveApiError(response, 'Google Drive rejected the upload')
       } catch (cause) {
         if (signal.aborted) throw cause
         if (cause instanceof Error && cause.message.startsWith('Google Drive rejected')) throw cause
@@ -175,5 +181,5 @@ export async function makeFilePublic(fileId: string, accessToken: string) {
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ type: 'anyone', role: 'reader' }),
   })
-  if (!response.ok) throw new Error(`Upload succeeded, but link sharing could not be enabled (${response.status}).`)
+  if (!response.ok) await throwDriveApiError(response, 'Upload succeeded, but link sharing could not be enabled')
 }
