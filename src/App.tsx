@@ -18,7 +18,16 @@ export default function App() {
   }
 
   return <>
-    {auth.connected && auth.profile ? <Dashboard profile={auth.profile} theme={theme} onToggleTheme={toggleTheme} ensureToken={auth.ensureToken} onDisconnect={auth.disconnect} /> : <Landing loading={auth.loading} error={auth.error} configured={Boolean(auth.clientId)} theme={theme} onToggleTheme={toggleTheme} onConnect={() => void auth.connect()} />}
+    {auth.connected && auth.profile ? (
+      <Dashboard profile={auth.profile} theme={theme} onToggleTheme={toggleTheme} ensureToken={auth.ensureToken} onDisconnect={auth.disconnect} />
+    ) : (
+      <>
+        <Landing loading={auth.loading} error={auth.error} configured={Boolean(auth.clientId)} theme={theme} onToggleTheme={toggleTheme} onConnect={() => void auth.connect()} />
+        <div className="border-t border-border/70 bg-background px-5 py-4 text-center text-[11px] text-muted-foreground">
+          <span>By using FlashUpload you agree to the </span><a href="/terms" className="font-medium text-foreground hover:underline">Terms of Service</a><span> and acknowledge the </span><a href="/privacy" className="font-medium text-foreground hover:underline">Privacy Policy</a>.
+        </div>
+      </>
+    )}
     <Toaster richColors closeButton position="bottom-right" theme={theme} />
   </>
 }
