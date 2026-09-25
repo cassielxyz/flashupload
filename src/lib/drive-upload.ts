@@ -78,7 +78,7 @@ async function initiateResumableSession(file: File, accessToken: string, signal:
   return sessionUrl
 }
 
-export async function queryResumableStatus(sessionUrl: string, totalSize: number, signal?: AbortSignal) {
+export async function queryResumableStatus(sessionUrl: string, totalSize: number, signal?: AbortSignal): Promise<number> {
   const response = await fetch(sessionUrl, {
     method: 'PUT',
     signal,
@@ -87,7 +87,7 @@ export async function queryResumableStatus(sessionUrl: string, totalSize: number
   if (response.status === 308) return parseRangeEnd(response.headers.get('Range')) + 1
   if (response.ok) return totalSize
   if (response.status === 404) throw new Error('This resumable session expired. Restart the file upload.')
-  await throwDriveApiError(response, 'Could not resume the Drive upload')
+  return await throwDriveApiError(response, 'Could not resume the Drive upload')
 }
 
 async function uploadChunk(sessionUrl: string, file: File, start: number, chunkSize: number, signal: AbortSignal) {
