@@ -26,24 +26,32 @@ Sign in with Google, choose where your files should go, start the upload, and ke
   <a href="https://flashupload.cassielae.me/"><strong>Try FlashUpload</strong></a>
 </p>
 
-## Preview
+## Real product previews
+
+The images below are captured directly from the live FlashUpload production site. They are not generated UI mockups.
 
 ### Home
 
 <p align="center">
-  <img src="docs/previews/landing.webp" alt="FlashUpload home preview" width="100%" />
+  <img src="docs/previews/landing.png" alt="FlashUpload live homepage" width="100%" />
 </p>
 
-### File workspace
+### Transfer engine
 
 <p align="center">
-  <img src="docs/previews/workspace.webp" alt="FlashUpload file workspace preview" width="100%" />
+  <img src="docs/previews/system.png" alt="FlashUpload live transfer engine section" width="100%" />
 </p>
 
-### Transfers
+### Resumable upload flow
 
 <p align="center">
-  <img src="docs/previews/transfers.webp" alt="FlashUpload transfers preview" width="100%" />
+  <img src="docs/previews/protocol.png" alt="FlashUpload live resumable upload flow section" width="100%" />
+</p>
+
+### Privacy-first route
+
+<p align="center">
+  <img src="docs/previews/privacy.png" alt="FlashUpload live privacy section" width="100%" />
 </p>
 
 ## What you can do
