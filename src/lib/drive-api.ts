@@ -7,7 +7,6 @@ export type DriveApiErrorPayload = {
     details?: Array<{ reason?: string; domain?: string; metadata?: Record<string, string>; ['@type']?: string }>
   }
   error_description?: string
-  error?: DriveApiErrorPayload['error']
 }
 
 function truncate(value: string, max = 320) {
