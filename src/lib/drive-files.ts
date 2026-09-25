@@ -34,19 +34,12 @@ export function escapeDriveQueryValue(value: string) {
   return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 }
 
-export async function listDriveItems(
+async function listDriveByClauses(
   accessToken: string,
-  options: {
-    parentId?: string
-    search?: string
-    pageToken?: string
-    pageSize?: number
-    orderBy?: string
-    trashed?: boolean
-  } = {},
+  clauses: string[],
+  options: { search?: string; pageToken?: string; pageSize?: number; orderBy?: string } = {},
+  action = 'Could not list Drive files',
 ) {
-  const parentId = options.parentId ?? 'root'
-  const clauses = [`'${escapeDriveQueryValue(parentId)}' in parents`, `trashed = ${options.trashed ? 'true' : 'false'}`]
   const search = options.search?.trim()
   if (search) clauses.push(`name contains '${escapeDriveQueryValue(search)}'`)
 
@@ -63,7 +56,42 @@ export async function listDriveItems(
     `https://www.googleapis.com/drive/v3/files?${params}`,
     accessToken,
     undefined,
-    'Could not list Drive files',
+    action,
+  )
+}
+
+export async function listDriveItems(
+  accessToken: string,
+  options: {
+    parentId?: string | null
+    search?: string
+    pageToken?: string
+    pageSize?: number
+    orderBy?: string
+    trashed?: boolean
+  } = {},
+) {
+  const clauses = [`trashed = ${options.trashed ? 'true' : 'false'}`]
+  const parentId = options.parentId === undefined ? 'root' : options.parentId
+  if (parentId) clauses.unshift(`'${escapeDriveQueryValue(parentId)}' in parents`)
+  return listDriveByClauses(accessToken, clauses, options)
+}
+
+export async function listDriveFolders(accessToken: string) {
+  return listDriveByClauses(
+    accessToken,
+    [`mimeType = '${DRIVE_FOLDER_MIME}'`, 'trashed = false'],
+    { pageSize: 1000, orderBy: 'name_natural' },
+    'Could not list Drive folders',
+  )
+}
+
+export async function listDriveTrash(accessToken: string) {
+  return listDriveByClauses(
+    accessToken,
+    ['trashed = true'],
+    { pageSize: 500, orderBy: 'modifiedTime desc' },
+    'Could not list Drive trash',
   )
 }
 
