@@ -1,189 +1,163 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="FlashUpload — resumable uploads and Google Drive workspace" width="100%" />
+  <img src="docs/banner.svg" alt="FlashUpload" width="100%" />
 </p>
 
-# FlashUpload
+<p align="center">
+  <strong>Upload large files to Google Drive with a cleaner, more reliable workflow.</strong>
+</p>
 
-FlashUpload is a browser-first large-file uploader and app-owned Google Drive workspace. It uses Google Drive's official resumable-upload protocol so file bytes travel **directly from the user's browser to Google Drive** instead of passing through a FlashUpload relay server.
+<p align="center">
+  <a href="https://flashupload.cassielae.me/">Open FlashUpload</a>
+  &nbsp;·&nbsp;
+  <a href="https://flashupload.cassielae.me/privacy">Privacy</a>
+  &nbsp;·&nbsp;
+  <a href="https://flashupload.cassielae.me/terms">Terms</a>
+</p>
 
-Production: **https://flashupload.cassielae.me/**
+---
 
-The authenticated experience now behaves like a focused Drive workspace: files and folders created through FlashUpload can be listed, searched, opened, renamed, moved, trashed, restored, and deleted while keeping the narrow `drive.file` OAuth scope. Light mode is the default; dark mode is built in.
+## FlashUpload
 
-## What it solves
+FlashUpload is a simple Google Drive upload workspace made for large files, interrupted connections, and people who want an easier way to keep uploads organized.
 
-A normal large upload can be painful when a connection drops near the end. FlashUpload keeps a Google Drive resumable session, uploads sequential Drive-compatible chunks, verifies the byte range Google accepted, and retries transient failures. If the page is reloaded, the user can reselect the same local file and FlashUpload can reuse the saved resumable session while it is still valid.
+Sign in with Google, choose where your files should go, start the upload, and keep an eye on everything from one clean workspace. FlashUpload also gives you basic file and folder management so you do not need to jump between different screens just to organize what you uploaded.
 
-FlashUpload **cannot exceed the physical upload bandwidth of the user's connection**. Its goal is to use the available connection efficiently and make interruptions much less expensive.
+<p align="center">
+  <a href="https://flashupload.cassielae.me/"><strong>Try FlashUpload</strong></a>
+</p>
 
-## Features
+## Preview
 
-- Direct browser → Google Drive transfers; no application file relay.
-- Google Identity Services OAuth with the narrow `drive.file` permission.
-- App-owned `FlashUpload` Drive folder created on first use.
-- Real folder navigation and breadcrumbs.
-- Create folders and upload directly into the current folder.
-- List/grid file views with sorting and search.
-- Rename and move files/folders.
-- Move to Trash, restore, and permanently delete.
-- File/folder details and Open in Drive actions.
-- Useful Google API error diagnostics instead of opaque status-only failures.
-- Official Google Drive resumable upload sessions.
-- Adaptive 8 / 16 / 32 MiB chunks, always aligned to Drive's 256 KiB chunk requirement.
-- Server-confirmed resume points using Drive's `Range` response header.
-- Exponential retry with jitter for `408`, `429`, and `5xx` responses.
-- Pause, resume, cancel, and retry controls.
-- Session recovery from IndexedDB after the same file is reselected.
-- Upload destination is persisted with the resumable session.
-- Up to three separate files uploaded concurrently. Chunks within one Drive file remain sequential.
-- Combined speed, progress, ETA, and per-file progress.
-- Screen Wake Lock where supported while a transfer is active.
-- Optional `anyone with the link` sharing, **off by default**.
-- Functional Settings, Trash, Transfers, and How-it-works surfaces.
-- Responsive desktop/mobile UI with Framer Motion and Lenis motion.
-- shadcn-style component primitives, Radix menus, Lucide icons, and CSS design tokens.
-- Default light mode plus persisted dark mode.
-- Public `/privacy` and `/terms` pages for production OAuth branding.
-- CSP and browser security headers for Vercel deployments.
-- Vitest coverage and GitHub Actions verification.
+### Home
 
-## Drive permission model
+<p align="center">
+  <img src="docs/previews/landing.webp" alt="FlashUpload home preview" width="100%" />
+</p>
 
-FlashUpload intentionally requests:
+### File workspace
 
-```text
-https://www.googleapis.com/auth/drive.file
-```
+<p align="center">
+  <img src="docs/previews/workspace.webp" alt="FlashUpload file workspace preview" width="100%" />
+</p>
 
-That scope allows FlashUpload to create and manage files/folders created by the app or explicitly granted to it. It does **not** silently grant visibility into the user's entire Drive.
+### Transfers
 
-To give the UI a predictable Drive-like workspace without broadening permissions, FlashUpload creates a normal top-level Drive folder named `FlashUpload` and manages app-created items from there. Requesting full-Drive visibility would require broader OAuth scopes and a different verification/security posture.
+<p align="center">
+  <img src="docs/previews/transfers.webp" alt="FlashUpload transfers preview" width="100%" />
+</p>
 
-## Architecture
+## What you can do
 
-```text
-FlashUpload UI (React + Vite + TypeScript)
-             │ Google Identity Services
-             ▼
-        Google OAuth 2.0
-             │ drive.file token
-             ▼
-┌─────────────────────────────────────┐
-│ FlashUpload browser workspace       │
-│ • file/folder operations            │
-│ • resumable-session manager         │
-│ • adaptive chunks                   │
-│ • pause / resume / retry            │
-│ • IndexedDB checkpoints             │
-└─────────────────┬───────────────────┘
-                  │ file bytes — DIRECT
-                  ▼
-          Google Drive API
-                  │
-                  ▼
-     User's normal FlashUpload folder
-```
+<table>
+  <tr>
+    <td width="64" align="center"><img src="docs/readme-icons/resume.svg" width="42" alt="Resume" /></td>
+    <td><strong>Resume interrupted uploads</strong><br/>A dropped connection does not have to mean starting again from zero. FlashUpload is designed to continue supported uploads from their saved progress.</td>
+  </tr>
+  <tr>
+    <td width="64" align="center"><img src="docs/readme-icons/drive.svg" width="42" alt="Google Drive" /></td>
+    <td><strong>Upload to your Google Drive</strong><br/>Your files are uploaded to your own Google Drive account and remain part of your normal Drive storage.</td>
+  </tr>
+  <tr>
+    <td width="64" align="center"><img src="docs/readme-icons/folder.svg" width="42" alt="Folders" /></td>
+    <td><strong>Keep files organized</strong><br/>Create folders, browse them, rename items, move files, and manage your FlashUpload workspace without leaving the app.</td>
+  </tr>
+  <tr>
+    <td width="64" align="center"><img src="docs/readme-icons/transfers.svg" width="42" alt="Transfers" /></td>
+    <td><strong>See what is happening</strong><br/>Follow upload progress, speed, remaining time, completed transfers, retries, and failed uploads from one place.</td>
+  </tr>
+  <tr>
+    <td width="64" align="center"><img src="docs/readme-icons/trash.svg" width="42" alt="Trash" /></td>
+    <td><strong>Manage files more easily</strong><br/>Open items in Drive, move them to Trash, restore them when needed, or permanently remove them.</td>
+  </tr>
+  <tr>
+    <td width="64" align="center"><img src="docs/readme-icons/privacy.svg" width="42" alt="Privacy" /></td>
+    <td><strong>Privacy-friendly by design</strong><br/>File data goes from your browser to Google Drive. FlashUpload does not need to act as a separate storage server for your uploaded files.</td>
+  </tr>
+</table>
 
-No FlashUpload backend is required for uploaded file data.
+## How it works
 
-## Google Cloud setup
+<table>
+  <tr>
+    <td width="34"><strong>01</strong></td>
+    <td><strong>Connect Google</strong><br/>Open FlashUpload and continue with your Google account.</td>
+  </tr>
+  <tr>
+    <td width="34"><strong>02</strong></td>
+    <td><strong>Choose a folder</strong><br/>Use the FlashUpload workspace or create a folder for the files you want to upload.</td>
+  </tr>
+  <tr>
+    <td width="34"><strong>03</strong></td>
+    <td><strong>Start uploading</strong><br/>Choose one or more files and monitor them from the Transfers page.</td>
+  </tr>
+  <tr>
+    <td width="34"><strong>04</strong></td>
+    <td><strong>Manage the result</strong><br/>Open, rename, move, restore, or remove uploaded items from the workspace.</td>
+  </tr>
+</table>
 
-1. Open Google Cloud Console and create/select a project.
-2. Enable **Google Drive API** in that exact project.
-3. Configure the OAuth consent screen.
-4. Add `openid`, `email`, `profile`, and `https://www.googleapis.com/auth/drive.file`.
-5. Create an **OAuth client ID → Web application**.
-6. Add development and production URLs under **Authorized JavaScript origins**, for example:
-   - `http://localhost:5173`
-   - `https://flashupload.cassielae.me`
-7. Copy the Web Client ID.
-8. Create `.env.local` from `.env.example` and set:
+## Made for real-world uploads
 
-```env
-VITE_GOOGLE_CLIENT_ID=YOUR_WEB_CLIENT_ID.apps.googleusercontent.com
-```
+FlashUpload is useful when you are working with files that are large enough to make a failed upload frustrating. It is a good fit for project archives, videos, design assets, backups, college work, client deliveries, photo collections, and other files that you want stored in Google Drive.
 
-`VITE_GOOGLE_CLIENT_ID` is an OAuth client identifier, not a client secret. Never put a Google OAuth client secret in this frontend.
+It does not make your internet connection faster than its actual upload speed. Its goal is to make the upload process more dependable, easier to follow, and less painful when a connection is unstable.
 
-For production OAuth branding use:
+## Workspace features
 
-```text
-Homepage: https://flashupload.cassielae.me/
-Privacy:  https://flashupload.cassielae.me/privacy
-Terms:    https://flashupload.cassielae.me/terms
-Domain:   cassielae.me
-```
+- Large-file uploads with resumable progress
+- Multiple file transfers
+- Pause, resume, cancel, and retry controls
+- Upload progress, speed, and estimated remaining time
+- Folder creation and navigation
+- Search and sorting
+- List and grid views
+- Rename and move actions
+- Trash, restore, and permanent delete
+- Open files directly in Google Drive
+- Optional link sharing after upload
+- Light and dark appearance
+- Transfer and help screens
 
-For a public production deployment, complete Google's app publishing/verification steps required for the configured audience.
+## Privacy
 
-## Local development
+FlashUpload is designed so your uploaded file contents do not need to pass through a separate FlashUpload file server. The browser communicates with Google services for sign-in and Drive operations.
+
+Public sharing is optional and is not enabled automatically.
+
+Read the full policies here:
+
+- [Privacy Policy](https://flashupload.cassielae.me/privacy)
+- [Terms of Service](https://flashupload.cassielae.me/terms)
+
+## Use FlashUpload
+
+<p align="center">
+  <a href="https://flashupload.cassielae.me/"><strong>https://flashupload.cassielae.me</strong></a>
+</p>
+
+No separate desktop app is required. Open the site in a modern browser, connect Google, and begin uploading.
+
+## For contributors
+
+FlashUpload is open source. If you want to run the project locally:
 
 ```bash
 npm install
 npm run dev
 ```
 
-### Verify
+Before submitting changes:
 
 ```bash
 npm test
 npm run build
 ```
 
-## Deploy to Vercel
+Please keep user-facing changes simple, functional, and consistent with the existing interface.
 
-1. Import this repository into Vercel.
-2. Add `VITE_GOOGLE_CLIENT_ID` in **Project Settings → Environment Variables** as a browser-visible/config value.
-3. Deploy.
-4. Add the final production origin to the Google OAuth client's Authorized JavaScript origins.
-5. Point `flashupload.cassielae.me` at the Vercel project.
+## Security
 
-`vercel.json` includes direct rewrites for `/privacy` and `/terms`, plus CSP, `nosniff`, referrer policy, permissions policy, and `same-origin-allow-popups` for Google's OAuth popup flow.
-
-## Upload behavior
-
-Google Drive requires resumable chunks (except the final chunk) to be multiples of 256 KiB. FlashUpload starts at 8 MiB and increases to 16 or 32 MiB when measured throughput justifies it.
-
-FlashUpload can upload multiple **different files** at once. It does not try to send multiple ranges of the same Drive resumable session simultaneously; Drive resumable chunks stay sequential so the accepted byte range stays unambiguous.
-
-The resumable session URL, filename, size, last-modified timestamp, destination folder identifier, and confirmed uploaded byte count are stored temporarily in IndexedDB. After a reload or browser restart, select the exact same local file again. FlashUpload matches it to the local record and asks Google which bytes were accepted before continuing.
-
-The **Anyone-with-link after upload** switch is disabled by default. When enabled, FlashUpload creates a Drive permission with `type=anyone` and `role=reader` after the file finishes.
-
-## 403 diagnostics
-
-FlashUpload reads Google's Drive API error payload and displays the useful reason/message instead of only `403`.
-
-Examples of actionable cases include:
-
-- Drive API disabled or never enabled in the OAuth client's Cloud project.
-- OAuth token missing the required Drive scope.
-- Drive storage quota exceeded.
-- Google rate limits or account/organization policy restrictions.
-
-Do not diagnose a status code alone; use the reason returned by Google.
-
-## Security and privacy
-
-- File content is not sent to a FlashUpload application server.
-- OAuth access tokens remain in page memory and are not intentionally persisted to localStorage.
-- The app requests `drive.file`, not unrestricted Drive access.
-- Public sharing is opt-in.
-- Saved resumable-session URLs are treated as sensitive and removed after success/cancel where practical.
-- No first-party analytics or advertising trackers are included by default.
-
-See [SECURITY.md](SECURITY.md), [PRIVACY.md](PRIVACY.md), and the production [Privacy Policy](https://flashupload.cassielae.me/privacy).
-
-## Open-source research
-
-FlashUpload's upload engine is implemented independently against Google's Drive API behavior. During design, the project also reviewed Tanaike's MIT-licensed `ResumableUploadForGoogleDrive_js` project as an example of large-file browser-side Drive uploads, especially disk slicing that avoids loading an entire huge file into memory.
-
-## Roadmap
-
-- Google Picker for explicitly granting existing Drive items to the narrow `drive.file` workspace.
-- File System Access API recovery without manual re-selection on supported browsers.
-- Optional desktop/Android companion for stronger background-upload behavior.
-- Local network diagnostics and transfer history.
+If you find a security issue, please follow the instructions in [SECURITY.md](SECURITY.md) instead of opening a public issue with sensitive details.
 
 ## License
 
